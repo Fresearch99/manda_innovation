@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Logs
+*.log
+
+# Local environment / secrets
+.env
+.env.*
+*.key
+*.pem
+
+# Large data / private data
+data/raw/*
+data/processed/*
+!data/raw/README.md
+!data/processed/README.md
+
+# Generated outputs
+outputs/*
+!outputs/README.md
+
+# Optional: large file types
+*.parquet
+*.feather
+*.fst
+*.rds
+*.Rds
+*.pkl
+*.pickle
+*.dta
+*.sas7bdat
+*.zip
+*.gz
+
+# OS / editor
+.vscode/
+.idea/
