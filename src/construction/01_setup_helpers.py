@@ -1,0 +1,114 @@
+"""
+01_setup_helpers.py
+
+Setup, imports, project paths, helper loader, and global environment configuration. This file preserves the original package imports and path setup so downstream section files can be compared directly to the monolithic source.
+
+This file was created by splitting the original uploaded construction script
+into topical modules. The code below stays intentionally close to the source
+so that a line-by-line audit against the original remains easy.
+"""
+
+# NOTE:
+# The code below preserves the original imperative construction style.
+# It is therefore best read as a section file that mirrors the original
+# notebook-style pipeline, rather than as a fully re-engineered library.
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Study: The Impact of Mergers and Acquisitions on Inventor Mobility and Performance
+Author: Dominik Jurek
+Revised by: Skilled Tech Economist AI
+Revision Date: 2024-05-18
+
+================================================================================
+SCRIPT OVERVIEW (v11 Update)
+================================================================================
+This script constructs a comprehensive set of panel datasets to analyze the
+relationship between M&A activity and inventor mobility. It serves as the master
+data construction pipeline, transforming raw data sources into analysis-ready files.
+"""
+
+# %%
+#################################################################
+# SECTION 1: SETUP AND CONFIGURATION
+#################################################################
+print("--- Section 1: Setup and Configuration ---")
+
+# ---------------------------------------------------------------
+# 1.1. Core Packages
+# ---------------------------------------------------------------
+import pandas as pd
+import numpy as np
+import os
+import requests
+import zipfile
+import csv
+import gc
+import re
+import itertools
+from io import BytesIO
+from collections import Counter, defaultdict, deque
+from math import sqrt
+from tqdm import tqdm
+
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.neighbors import NearestNeighbors
+from sklearn.linear_model import LogisticRegression
+
+from sklearn.exceptions import ConvergenceWarning
+import warnings
+
+
+# ---------------------------------------------------------------
+# 1.2. Project Configuration
+# ---------------------------------------------------------------
+BASE_PROJECT_PATH = r'/Users/dominikjurek/Library/CloudStorage/Dropbox/University/PhD Berkeley/Research'
+VERSION = 2  # Updated version for this revision
+
+# --- Derived Data Paths ---
+OUTPUT_PATH = os.path.join(BASE_PROJECT_PATH, f'Patents/Data/Inventor_Mobility__v{VERSION}')
+RAW_DATA_PATH = os.path.join(BASE_PROJECT_PATH, 'Patents/Data/Raw_Patentsview')
+INTERMEDIATE_PATH = os.path.join(OUTPUT_PATH, 'intermediate_files')
+
+FINANCIAL_DATA_PATH = os.path.join(BASE_PROJECT_PATH, 'WRDS Data')
+MANDA_DATA_PATH = os.path.join(BASE_PROJECT_PATH, 'SDC Data 1993 - 2018/MandA')
+
+
+# --- Source Data Paths ---
+# (Assume paths are correctly set)
+
+# Create output directories if they don't exist
+os.makedirs(OUTPUT_PATH, exist_ok=True)
+os.makedirs(INTERMEDIATE_PATH, exist_ok=True)
+os.chdir(OUTPUT_PATH)
+
+# --- Pandas Display Options & tqdm Integration ---
+pd.set_option('display.max_columns', 50); pd.set_option('display.max_rows', 100)
+pd.set_option('display.width', 100); pd.set_option('display.float_format', '{:.3f}'.format)
+tqdm.pandas()
+print("Setup complete.")
+
+# %%
+#################################################################
+# SECTION 2 & 3: HELPERS & FOUNDATIONAL ECONOMIC DATA
+#################################################################
+print("--- Section 2 & 3: Loading Helpers & Foundational Economic Data ---")
+# Helper functions and loading of pre-built Compustat/M&A panels are assumed
+# to be here for brevity. This is a critical step for a full run.
+def download_and_load_patentsview_data(file_name, **kwargs):
+    """Downloads a PatentsView TSV file if not present locally, then loads it."""
+    base_url = 'https://s3.amazonaws.com/data.patentsview.org/download'
+    local_file_path = os.path.join(RAW_DATA_PATH, file_name)
+    if not os.path.exists(RAW_DATA_PATH): os.makedirs(RAW_DATA_PATH)
+    if os.path.exists(local_file_path):
+        print(f"\tLoading '{file_name}' from local directory.", flush=True)
+    else:
+        print(f"\tDownloading '{file_name}'...", flush=True)
+        r = requests.get(f"{base_url}/{file_name}.zip", timeout=300)
+        r.raise_for_status()
+        with zipfile.ZipFile(BytesIO(r.content)) as z: z.extractall(RAW_DATA_PATH)
+    return pd.read_csv(local_file_path, delimiter="\t", quoting=csv.QUOTE_NONNUMERIC, low_memory=False, **kwargs)
+

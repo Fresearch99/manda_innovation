@@ -18,3 +18,14 @@ The underlying data used in this project are not publicly distributed in this re
 
 ## Author
 Dominik Jurek
+
+## Construction code
+The main data-construction pipeline lives in `src/construction/`.
+
+Suggested entry points:
+- `src/construction/run_construction.py` — orchestrator and execution order guide
+- `src/construction/pipeline_reference.py` — near-faithful single-file reference version of the original construction script, with the unused standalone inventor move panel section removed
+- `src/construction/sections/` equivalent logic split across topical modules for easier navigation
+
+## Notes for public use
+The repository does not include the confidential raw and linked data required to run the full pipeline end to end. Path configuration, source file names, and cache/output targets should be adapted locally in `src/construction/config.py`.
