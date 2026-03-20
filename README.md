@@ -29,3 +29,28 @@ Suggested entry points:
 
 ## Notes for public use
 The repository does not include the confidential raw and linked data required to run the full pipeline end to end. Path configuration, source file names, and cache/output targets should be adapted locally in `src/construction/config.py`.
+
+
+## Analysis code
+The cleaned analysis pipeline lives in `src/analysis/`.
+
+Suggested entry points:
+- `src/analysis/run_analysis.py` — simple orchestrator that runs the two main cleaned analysis branches in sequence
+- `src/analysis/run_firm_panel_analysis.py` — firm-panel baseline, heterogeneity, advanced methods, and placebo workflow
+- `src/analysis/run_inventor_year_analysis.py` — inventor-year event-study, heterogeneity, and optional downsampled advanced workflow
+- `src/analysis/pipeline_reference.py` — guide to the cleaned analysis split and scope relative to the original monolithic analysis file
+- `src/analysis/sections/` — equivalent logic split across topical modules for easier navigation
+
+Main topical modules inside `src/analysis/sections/`:
+- `firm_analysis.py` — stacked firm-panel preparation, matching, baseline DiD/event-study, and heterogeneity layers
+- `advanced_methods.py` — advanced firm-panel estimators including causal forest, synthetic-control style routines, Sun-Abraham, and BJS
+- `placebos.py` — placebo assignment and placebo test helpers for significant firm-panel results
+- `inventor_year.py` — inventor-year role-vs-control preparation, heterogeneity utilities, downsampling, and inventor-year advanced-method helpers
+- `utils.py` — shared helper functions used across the cleaned analysis pipeline
+
+Scope notes:
+- the old inventor mover panel is intentionally excluded because it is no longer part of the active project;
+- the Callaway-Sant'Anna method for the firm panel is intentionally excluded from the cleaned public-facing analysis split;
+- inventor-year CSDID helper utilities remain in the code, but are not wired into the default runner because their original execution block appears archived/commented rather than active.
+
+Path configuration, local confidential inputs, and output targets should be adapted locally in `src/analysis/config.py`, just as the construction pipeline paths may need local adjustment in `src/construction/config.py`.
