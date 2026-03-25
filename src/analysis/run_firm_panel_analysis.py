@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from analysis.sections.advanced_methods import run_borusyak_jaravel, run_causal_forest, run_sun_abraham, run_synth_for_all_units
+from analysis.sections.summary_statistics import write_firm_summary_outputs
 from analysis.config import AnalysisConfig
 from analysis.data import load_analysis_data
 from analysis.sections.firm_analysis import (
@@ -40,6 +41,21 @@ def main() -> None:
     pre_post_tgt = compare_pre_post_ttests(df_target, stacked_target, covariates=["log_sale", "log_mv"])
     pre_post_acq.to_csv(config.out_path / "pre_post_balance_acquiror.csv", index=False)
     pre_post_tgt.to_csv(config.out_path / "pre_post_balance_target.csv", index=False)
+
+    write_firm_summary_outputs(
+        out_dir=config.out_path / "summary_stats",
+        df_role_raw=df_acquiror,
+        stacked_df=stacked_acquiror,
+        role_name="acquiror",
+        headline_outcomes=outcomes,
+    )
+    write_firm_summary_outputs(
+        out_dir=config.out_path / "summary_stats",
+        df_role_raw=df_target,
+        stacked_df=stacked_target,
+        role_name="target",
+        headline_outcomes=outcomes,
+    )
 
     stacked_acquiror, sig_acq = run_all_heterogeneity_specs_for_panel(
         panel=stacked_acquiror,

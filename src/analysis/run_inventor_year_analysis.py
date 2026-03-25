@@ -8,6 +8,7 @@ import pandas as pd
 from analysis.config import AnalysisConfig
 from analysis.data import load_analysis_data
 from analysis.sections.firm_analysis import run_did_and_event_study_for_all_outcomes
+from analysis.sections.summary_statistics import write_inventor_summary_outputs
 from analysis.sections.inventor_year import (
     downsample_units_for_advanced,
     prepare_inventor_event_panel_for_did_role_vs_control,
@@ -67,6 +68,15 @@ def main() -> None:
                 )
 
                 role_tag = f"inv_year_{role}_vs_control_{tag}_{firm_tag}"
+                
+                write_inventor_summary_outputs(
+                    out_dir=invy_out_dir / "summary_stats",
+                    inv_es=inv_es,
+                    role_tag=role_tag,
+                    role_name=role,
+                    headline_outcomes=[y for y in inv_year_outcomes if y in inv_es.columns],
+                )
+                
                 sig = run_did_and_event_study_for_all_outcomes(
                     df=inv_es,
                     role=role_tag,
@@ -96,6 +106,7 @@ def main() -> None:
                 #
                 # Bootstrapping is kept small here to limit runtime in a public
                 # repo example. Increase B later if needed.
+                '''
                 for cs_outcome in ["is_move_year", "total_patents", "cites"]:
                     if cs_outcome not in inv_es.columns:
                         continue
@@ -120,6 +131,7 @@ def main() -> None:
                         )
                     except Exception as exc:
                         print(f"[{role_tag} | {cs_outcome}] inventor-year CSDID skipped/failed: {exc}", flush=True)
+                '''
                 # To disable again, simply comment out the try/except block above.
                     
                 for z_col in ["Z_upper_half_cum_patents_within_firm"]:
