@@ -2,16 +2,7 @@
 06_firm_fundamentals.py
 
 Firm fundamentals construction from Compustat and related accounting/market variables.
-
-This file was created by splitting the original uploaded construction script
-into topical modules. The code below stays intentionally close to the source
-so that a line-by-line audit against the original remains easy.
 """
-
-# NOTE:
-# The code below preserves the original imperative construction style.
-# It is therefore best read as a section file that mirrors the original
-# notebook-style pipeline, rather than as a fully re-engineered library.
 
 # %%
 #################################################################
@@ -334,8 +325,6 @@ print(f"[Compustat core] DataFrame size: {compustat_core_df.shape[0]:,} rows × 
 print("--- Section 13: Building Linktable and Merge with Fundamentals  ---")
 
 # --- 1) Load & clean the CRSP–Compustat linktable ----------------------------
-LINKTABLE_CSV = r'/Users/dominikjurek/Library/CloudStorage/Dropbox/University/PhD Berkeley/Research/Alice Project/Patent Portfolio and Economic Data/Patent Portfolio Source Data/linktable.csv'
-
 usecols = [
     'gvkey', 'LPERMNO', 'LPERMCO', 'cusip', 'sic', 'naics',
     'LINKDT', 'LINKENDDT', 'tic', 'LINKTYPE', 'LINKPRIM'

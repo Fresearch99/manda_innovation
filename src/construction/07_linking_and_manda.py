@@ -2,22 +2,32 @@
 07_linking_and_manda.py
 
 Linktable merge logic and M&A panel construction, including pre-deal technology similarity.
-
-This file was created by splitting the original uploaded construction script
-into topical modules. The code below stays intentionally close to the source
-so that a line-by-line audit against the original remains easy.
 """
-
-# NOTE:
-# The code below preserves the original imperative construction style.
-# It is therefore best read as a section file that mirrors the original
-# notebook-style pipeline, rather than as a fully re-engineered library.
 
 # %%
 #################################################################
 # SECTION 14: M&A DATA STRUCTURING
 #################################################################
 print("--- Section 14: Building M&A Data  ---")
+
+def _calculate_cosine_similarity(vec1, vec2):
+    """Calculate cosine similarity between two Counter vectors."""
+    if not isinstance(vec1, Counter) or not isinstance(vec2, Counter):
+        raise TypeError("Input vectors must be of type collections.Counter")
+
+    if not vec1 or not vec2:
+        return np.nan
+
+    all_keys = vec1.keys() | vec2.keys()
+    dot_product = sum(vec1.get(k, 0) * vec2.get(k, 0) for k in all_keys)
+
+    norm1 = sqrt(sum(v**2 for v in vec1.values()))
+    norm2 = sqrt(sum(v**2 for v in vec2.values()))
+
+    if norm1 == 0 or norm2 == 0:
+        return np.nan
+
+    return dot_product / (norm1 * norm2)
 
 def build_manda_panel(manda_csv, linktable):
     # -----------------------------
@@ -165,9 +175,6 @@ def build_predeal_tech_similarity(pat_inv_firm_df, manda_df, window_years=5, tec
     Build pre-deal technology similarity between target and acquiror based on
     their patent portfolios in the window [announcement_year - window_years + 1,
     announcement_year], using CPC subclasses as technology classes.
-
-    Reuses the global `_calculate_cosine_similarity` helper and Counter-based
-    vectors from Section 11.
     """
     print("\tBuilding pre-deal technology similarity (target vs acquiror)...", flush=True)
 

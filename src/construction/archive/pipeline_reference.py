@@ -1,15 +1,3 @@
-"""
-Near-faithful reference version of the original monolithic construction script.
-
-Changes relative to the uploaded original
------------------------------------------
-1. Added this explanatory file header.
-2. Removed the standalone inventor move panel construction block from original
-   Section 15.4 because that output is not used in the current GitHub project.
-3. Left the remaining logic, variable names, and execution order intentionally
-   close to the source for auditability.
-"""
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """

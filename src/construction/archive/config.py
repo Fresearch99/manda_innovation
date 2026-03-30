@@ -1,9 +1,5 @@
 """
 Central configuration for the manda_innovation construction pipeline.
-
-This file mirrors the path logic from the original monolithic script, but puts the
-editable path settings in one place so a user who clones the repository can adapt
-local paths without touching the substantive construction logic.
 """
 
 from __future__ import annotations
@@ -16,7 +12,7 @@ from pathlib import Path
 # -----------------------------------------------------------------------------
 # Replace these defaults with your local confidential-data locations.
 BASE_PROJECT_PATH = Path(r"/Users/dominikjurek/Library/CloudStorage/Dropbox/University/PhD Berkeley/Research")
-VERSION = 2
+VERSION = 3
 
 # Derived output/cache locations
 OUTPUT_PATH = BASE_PROJECT_PATH / f"Patents/Data/Inventor_Mobility__v{VERSION}"

@@ -1,17 +1,8 @@
 """
 04_mobility_and_mover_metrics.py
 
-Inventor move identification, performance around moves, and benchmarking of movers relative to peers. This file keeps the move-identification outputs because they feed later analysis panels, but the separate standalone inventor move panel output is removed elsewhere.
-
-This file was created by splitting the original uploaded construction script
-into topical modules. The code below stays intentionally close to the source
-so that a line-by-line audit against the original remains easy.
+Inventor move identification, performance around moves, and benchmarking of movers relative to peers. T
 """
-
-# NOTE:
-# The code below preserves the original imperative construction style.
-# It is therefore best read as a section file that mirrors the original
-# notebook-style pipeline, rather than as a fully re-engineered library.
 
 # %%
 #################################################################
@@ -25,7 +16,7 @@ prolific_inventors = inventor_counts[inventor_counts >= min_patents].index
 career_df = pat_inv_firm_df[pat_inv_firm_df['inventor_id'].isin(prolific_inventors)].copy()
 career_df.sort_values(['inventor_id', 'filing_date'], inplace=True)
 
-# ±1 neighbors (as before)
+# ±1 neighbors 
 career_df['next_permco'] = career_df.groupby('inventor_id')['permco'].shift(-1)
 career_df['prev_permco'] = career_df.groupby('inventor_id')['permco'].shift(1)
 
@@ -159,7 +150,7 @@ print(f"\t[Inventor perf annual wide] size: {annual_wide.shape[0]:,} rows × {an
 
 # %%
 #################################################################
-# SECTION 10: BENCHMARKING MOVERS AGAINST PEERS (ENHANCED)
+# SECTION 10: BENCHMARKING MOVERS AGAINST PEERS 
 #################################################################
 print("--- Section 10: Benchmarking Movers Against Their Peers  ---")
 

@@ -1,28 +1,10 @@
 """
 01_setup_helpers.py
 
-Setup, imports, project paths, helper loader, and global environment configuration. This file preserves the original package imports and path setup so downstream section files can be compared directly to the monolithic source.
-
-This file was created by splitting the original uploaded construction script
-into topical modules. The code below stays intentionally close to the source
-so that a line-by-line audit against the original remains easy.
-"""
-
-# NOTE:
-# The code below preserves the original imperative construction style.
-# It is therefore best read as a section file that mirrors the original
-# notebook-style pipeline, rather than as a fully re-engineered library.
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Study: The Impact of Mergers and Acquisitions on Inventor Mobility and Performance
-Author: Dominik Jurek
-Revised by: Skilled Tech Economist AI
-Revision Date: 2024-05-18
+Setup, imports, project paths, helper loader, and global environment configuration. 
 
 ================================================================================
-SCRIPT OVERVIEW (v11 Update)
+SCRIPT OVERVIEW 
 ================================================================================
 This script constructs a comprehensive set of panel datasets to analyze the
 relationship between M&A activity and inventor mobility. It serves as the master
@@ -65,29 +47,43 @@ import warnings
 # ---------------------------------------------------------------
 # 1.2. Project Configuration
 # ---------------------------------------------------------------
-BASE_PROJECT_PATH = r'/Users/dominikjurek/Library/CloudStorage/Dropbox/University/PhD Berkeley/Research'
-VERSION = 2  # Updated version for this revision
+BASE_PROJECT_PATH = r"/Users/dominikjurek/Library/CloudStorage/Dropbox/University/PhD Berkeley/Research"
+VERSION = 3
 
-# --- Derived Data Paths ---
-OUTPUT_PATH = os.path.join(BASE_PROJECT_PATH, f'Patents/Data/Inventor_Mobility__v{VERSION}')
-RAW_DATA_PATH = os.path.join(BASE_PROJECT_PATH, 'Patents/Data/Raw_Patentsview')
-INTERMEDIATE_PATH = os.path.join(OUTPUT_PATH, 'intermediate_files')
+OUTPUT_PATH = os.path.join(BASE_PROJECT_PATH, f"Patents/Data/Inventor_Mobility__v{VERSION}")
+RAW_DATA_PATH = os.path.join(BASE_PROJECT_PATH, "Patents/Data/Raw_Patentsview")
+INTERMEDIATE_PATH = os.path.join(OUTPUT_PATH, "intermediate_files")
 
-FINANCIAL_DATA_PATH = os.path.join(BASE_PROJECT_PATH, 'WRDS Data')
-MANDA_DATA_PATH = os.path.join(BASE_PROJECT_PATH, 'SDC Data 1993 - 2018/MandA')
+FINANCIAL_DATA_PATH = os.path.join(BASE_PROJECT_PATH, "WRDS Data")
+MANDA_DATA_PATH = os.path.join(BASE_PROJECT_PATH, "SDC Data 1993 - 2018/MandA")
+LINKTABLE_CSV = os.path.join(
+    BASE_PROJECT_PATH,
+    "Alice Project/Patent Portfolio and Economic Data/Patent Portfolio Source Data/linktable.csv"
+)
 
-
-# --- Source Data Paths ---
-# (Assume paths are correctly set)
-
-# Create output directories if they don't exist
 os.makedirs(OUTPUT_PATH, exist_ok=True)
 os.makedirs(INTERMEDIATE_PATH, exist_ok=True)
-os.chdir(OUTPUT_PATH)
+
+def assert_required_paths_exist():
+    required_paths = [
+        BASE_PROJECT_PATH,
+        RAW_DATA_PATH,
+        FINANCIAL_DATA_PATH,
+        MANDA_DATA_PATH,
+        LINKTABLE_CSV,
+    ]
+    for path in required_paths:
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Required path does not exist: {path}")
+
+assert_required_paths_exist()
 
 # --- Pandas Display Options & tqdm Integration ---
-pd.set_option('display.max_columns', 50); pd.set_option('display.max_rows', 100)
-pd.set_option('display.width', 100); pd.set_option('display.float_format', '{:.3f}'.format)
+pd.set_option('display.max_columns', 50)
+pd.set_option('display.max_rows', 100)
+pd.set_option('display.width', 100)
+pd.set_option('display.float_format', '{:.3f}'.format)
+
 tqdm.pandas()
 print("Setup complete.")
 

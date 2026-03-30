@@ -1,17 +1,8 @@
 """
 02_patent_panel_construction.py
 
-Patent-data loading and the core patent-inventor-firm dataset construction. This file covers the early heavy-lift data preparation stage and preserves the original load/clean/build logic.
-
-This file was created by splitting the original uploaded construction script
-into topical modules. The code below stays intentionally close to the source
-so that a line-by-line audit against the original remains easy.
+Patent-data loading and the core patent-inventor-firm dataset construction. 
 """
-
-# NOTE:
-# The code below preserves the original imperative construction style.
-# It is therefore best read as a section file that mirrors the original
-# notebook-style pipeline, rather than as a fully re-engineered library.
 
 # %%
 #################################################################

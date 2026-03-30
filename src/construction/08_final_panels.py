@@ -1,17 +1,8 @@
 """
 08_final_panels.py
 
-Final analysis panels, including the firm-year panel, M&A event-study panel, inventor-year panel for inventors ever at M&A firms, and the inventor × M&A event-study panel. The unused standalone inventor move panel block from original Section 15.4 has been removed here.
-
-This file was created by splitting the original uploaded construction script
-into topical modules. The code below stays intentionally close to the source
-so that a line-by-line audit against the original remains easy.
+Final analysis panels, including the firm-year panel, M&A event-study panel, inventor-year panel for inventors ever at M&A firms, and the inventor × M&A event-study panel. 
 """
-
-# NOTE:
-# The code below preserves the original imperative construction style.
-# It is therefore best read as a section file that mirrors the original
-# notebook-style pipeline, rather than as a fully re-engineered library.
 
 # %%
 #################################################################
@@ -111,7 +102,7 @@ firm_year_panel_enriched = firm_year_panel_enriched.merge(
 # Averages of changes can be left as NaN if no one moved.
 cols_to_fill_zero = [
     'total_patents', 'cites', 'xi_real', 'backward_cites', 'self_cites', 
-    'top1_patents', 'top10_to_2_patents', 'cited_patents', 'uncited_patents', 'num_inventors'
+    'top1_patents', 'top10_to_2_patents', 'cited_patents', 'uncited_patents', 'num_inventors',
     'departing_inventors_count', 'sum_patents_pre_move_departures', 'sum_cites_pre_move_departures', 'sum_xi_real_pre_move_departures',
     'arriving_inventors_count', 'sum_patents_pre_move_arrivals', 'sum_cites_pre_move_arrivals'
 ]
@@ -252,7 +243,7 @@ print(f"Panel saved to: {output_filename}")
 print(f"[Final firm-year panel] size: {final_firm_panel.shape[0]:,} rows × {final_firm_panel.shape[1]:,} cols", flush=True)
 
 # ---------------------------------------------------------------
-# 15.3. Creating an M&A Event-Study Panel
+# 15.2. Creating an M&A Event-Study Panel
 # ---------------------------------------------------------------
 print("\nTransforming the firm-year panel into an M&A event-study panel...")
 
@@ -441,38 +432,11 @@ print("\nEvent-study panel creation complete.")
 print(f"[Final M&A event-study panel] size: {final_event_panel.shape[0]:,} rows × {final_event_panel.shape[1]:,} cols", flush=True)
 
 
-# ---------------------------------------------------------------
-
-r'''
-# %%
-# =====================================================================
-# FAST-RERUN GATE: load intermediates and skip heavy upstream sections
-# =====================================================================
-START_AT_SECTION = 15.5   # set to 0 for full run; set to 15.5 to rerun only from here
-
-# Use strings + os.path.join instead of Path
-INTER_DIR = os.path.join(OUTPUT_PATH, "intermediate_files")
-os.makedirs(INTER_DIR, exist_ok=True)
-
-def load_pickle(path: str, name: str):
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Missing cache for {name}: {path}\nRun full pipeline once to create it.")
-    return pd.read_pickle(path)
-
-if START_AT_SECTION >= 15.5:
-    pat_inv_firm_df   = load_pickle(os.path.join(INTER_DIR, "pat_inv_firm_df_fully_enriched.pkl"), "pat_inv_firm_df")
-    mover_events_df   = load_pickle(os.path.join(INTER_DIR, "mover_events_df.pkl"), "mover_events_df")
-    manda_df          = load_pickle(os.path.join(INTER_DIR, "manda.pkl"), "manda_df")
-    final_event_panel = load_pickle(os.path.join(OUTPUT_PATH, "final_firm_year_ma_event_study_panel.pkl"), "final_event_panel")
-
-    print("[gate] Loaded cached objects; running from Section 15.5+ only.")
-r'''
-
 # %%
 #################################################################
-# SECTION 15.5: INVENTOR-YEAR PANEL FOR INVENTORS EVER AT M&A FIRMS
+# SECTION 15.3: INVENTOR-YEAR PANEL FOR INVENTORS EVER AT M&A FIRMS
 #################################################################
-print("\n--- Section 15.5: Building inventor-year panel for inventors ever at M&A firms ---")
+print("\n--- Building inventor-year panel for inventors ever at M&A firms ---")
 
 def build_inventor_year_panel_ma_inventors(
     pat_inv_firm_df: pd.DataFrame,
@@ -850,55 +814,12 @@ inventor_year_ma_panel = build_inventor_year_panel_ma_inventors(
     window_fill_years=None  # e.g., (1985, 2019) if you want a common global window for all inventors
 )
 
-r'''
-# %%
-# =====================================================================
-# FAST-RERUN GATE (ahead of 15.6): load 15.5 output + 15.3 event panel
-# =====================================================================
-START_AT_SECTION = 15.6   # set to 0 for full run; set to 15.6 to rerun only from here
-
-# Use strings + os.path.join instead of Path
-INTER_DIR = os.path.join(OUTPUT_PATH, "intermediate_files")
-os.makedirs(INTER_DIR, exist_ok=True)
-
-def load_pickle(path: str, name: str):
-    if not os.path.exists(path):
-        raise FileNotFoundError(
-            f"Missing cache for {name}: {path}\n"
-            f"Run the full pipeline once to create it."
-        )
-    return pd.read_pickle(path)
-
-if START_AT_SECTION >= 15.6:
-    # (A) needed if you are *skipping* 15.5
-    inventor_year_ma_panel = load_pickle(
-        os.path.join(OUTPUT_PATH, "inventor_year_panel_ma_inventors.pkl"),
-        "inventor_year_ma_panel"
-    )
-
-    # (B) needed only if you also skip earlier sections and references exist downstream
-    #     (safe to load even if 15.6 itself doesn't use it directly)
-    final_event_panel = load_pickle(
-        os.path.join(OUTPUT_PATH, "final_firm_year_ma_event_study_panel.pkl"),
-        "final_event_panel"
-    )
-
-    # (C) optional: if you later run the inventor-year analysis block that uses firm_lag
-    #     (load only if it exists in your pipeline)
-    firm_lag_path = os.path.join(OUTPUT_PATH, "firm_lag.pkl")
-    if os.path.exists(firm_lag_path):
-        firm_lag = load_pickle(firm_lag_path, "firm_lag")
-    else:
-        firm_lag = None
-
-    print("[gate] Loaded cached objects; running from Section 15.6+ only.")
-r'''
 
 # %%
 #################################################################
-# SECTION 15.6: INVENTOR × M&A EVENT-STUDY PANEL (-5..+5)
+# SECTION 15.4: INVENTOR × M&A EVENT-STUDY PANEL (-5..+5)
 #################################################################
-print("\n--- Section 15.6: Building inventor M&A event-study panel (-5..+5) ---")
+print("\n--- Building inventor M&A event-study panel (-5..+5) ---")
 
 def filter_events_feasible_over_window(
     df0: pd.DataFrame,
@@ -1291,13 +1212,7 @@ def build_inventor_ma_event_study_panel(
 ):
     """
     Build a balanced inventor×event window panel around M&A events using
-    firm-year event context already merged from final_event_panel (via 15.5).
-
-    Fixes two issues:
-      (1) Post-move outcomes bug: merge outcomes by (inventor_id, data_year),
-          not by event keys (which include permco_assigned).
-      (2) Preserve never-M&A inventors as controls: add an "anchor event year"
-          for inventors with ever_treated_inv==0 so they enter the event-study grid.
+    firm-year event context already merged from final_event_panel.
 
     Expects inventor_year_panel to contain at least:
       - inventor_id, data_year
@@ -1328,7 +1243,6 @@ def build_inventor_ma_event_study_panel(
     df0["permco_assigned"] = pd.to_numeric(df0["permco_assigned"], errors="coerce").astype("Int64")
 
     # We'll keep an outcomes/metrics table keyed ONLY by inventor_id + data_year
-    # This is the critical fix for the "after moves" merge bug.
     outcome_cols = [c for c in df0.columns if c not in [
         "years_from_ma_deal", "ma_deal_role", "ma_failed_merger", "ma_deal_value",
         "ma_other_party", "ma_predeal_tech_similarity"
@@ -1438,7 +1352,7 @@ def build_inventor_ma_event_study_panel(
     print(f"\tBalanced grid rows: {grid.shape[0]:,}", flush=True)
 
     # ----------------------------
-    # 4) Merge outcomes BY (inventor_id, data_year)  [BUG FIX]
+    # 4) Merge outcomes BY (inventor_id, data_year) 
     # ----------------------------
     outcomes2 = outcomes.copy()
     outcomes2["data_year"] = pd.to_numeric(outcomes2["data_year"], errors="coerce").astype("Int64")
