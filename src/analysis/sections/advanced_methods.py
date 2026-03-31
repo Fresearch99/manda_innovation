@@ -23,9 +23,8 @@ def run_causal_forest(
 ):
     """Estimate heterogeneous treatment effects on the stacked firm panel.
 
-    The implementation intentionally follows the original script: pre-period X at
-    `event_time = -1`, post-period outcome averaged over a short window, and the
-    stack's treatment indicator used as the binary treatment.
+    pre-period X at `event_time = -1`, post-period outcome averaged over a short window, 
+    and the stack's treatment indicator used as the binary treatment.
     """
     print(f"[CF] Running Causal Forest for '{role_tag}' on outcome='{outcome}'...")
     if outcome not in panel.columns or not all(c in panel.columns for c in base_covs):

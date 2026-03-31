@@ -120,12 +120,7 @@ def run_csdid_inventor_year(
     seed: int = 42,
     verbose: bool = True,
 ):
-    """Run CSDID on the inventor-year panel.
-
-    This utility is retained because it is still useful, but note that the
-    current main inventor-year loop in the source script does not call it: the
-    call remains archived in a commented block.
-    """
+    """Run CSDID on the inventor-year panel."""
     d0 = df_full.copy()
     role_l = str(role).lower()
     g_map = {"all": "cs_g_year_all", "target": "cs_g_year_target", "acquiror": "cs_g_year_acquiror"}
@@ -358,7 +353,7 @@ def prepare_inventor_event_panel_for_did_role_vs_control(
     df["Treated"] = (df["ma_deal_role"] == role_l).astype(int)
     df["event_time"] = pd.to_numeric(df["years_from_ma_deal"], errors="coerce").astype(float)
     df["cohort"] = pd.to_numeric(df["closest_deal_year"], errors="coerce").astype(float)
-    df["Post"] = (df["event_time"] > 0).astype(int)
+    df["Post"] = (df["event_time"] >= 0).astype(int)
     df["Post_Treated"] = df["Post"] * df["Treated"]
     df["data_year"] = pd.to_numeric(df["data_year"], errors="coerce")
     df = df.dropna(subset=["data_year"]).copy()
@@ -411,12 +406,7 @@ def downsample_units_for_advanced(
     max_control_units: int,
     seed: int = 42,
 ) -> pd.DataFrame:
-    """Sample inventor-event units while preserving the full event-time path.
-
-    The original helper was named specifically for acquirors, but the same logic
-    is used for targets in the execution loop. The renamed function keeps the
-    exact sampling rule and only changes the misleading name.
-    """
+    """Sample inventor-event units while preserving the full event-time path."""
     df = inv_es.reset_index() if isinstance(inv_es.index, pd.MultiIndex) else inv_es.copy()
     required = ["inventor_id", "closest_deal_year", "permco_event", "ma_deal_role", "ma_other_party"]
     missing = [c for c in required if c not in df.columns]

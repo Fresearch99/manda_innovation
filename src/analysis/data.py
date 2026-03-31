@@ -29,11 +29,7 @@ DEFAULT_FIRM_X = [
 
 
 def build_firm_lag_controls(firm_panel: pd.DataFrame) -> pd.DataFrame:
-    """Create or recover lagged firm controls used downstream.
-
-    The original script preferred existing `lag1_*` columns if available, and
-    otherwise recreated them by firm-year. This function preserves that logic.
-    """
+    """Create or recover lagged firm controls used downstream."""
     firm_x = [c for c in DEFAULT_FIRM_X if c in firm_panel.columns]
     firm_lag = firm_panel[["permco", "data_year", *firm_x]].copy()
     firm_lag = firm_lag.sort_values(["permco", "data_year"])
@@ -83,15 +79,7 @@ def merge_firm_controls_into_inventor_panels(
 
 
 def load_analysis_data(config: AnalysisConfig) -> LoadedData:
-    """Load the datasets used by the cleaned analysis.
-
-    Intentional cleanup from the original script:
-    - does not load the inventor mover panel into the active workflow;
-    - uses the event-study firm panel (`manda_event_path`) as the firm panel;
-    - keeps the inventor-year panel because it is still referenced by the
-      inventor-year CSDID helper, even though the current main runner leaves
-      that call archived.
-    """
+    """Load the datasets used by the cleaned analysis."""
     config.ensure_output_dirs()
 
     firm_panel = pd.read_pickle(config.manda_event_path)

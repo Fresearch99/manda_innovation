@@ -6,17 +6,12 @@ from pathlib import Path
 
 @dataclass
 class AnalysisConfig:
-    """Central configuration for the analysis workflow.
-
-    The original script mixed hard-coded paths, run flags, and econometric
-    settings in the global namespace. This dataclass keeps the same defaults,
-    but makes them easier to inspect and override.
-    """
+    """Central configuration for the analysis workflow."""
 
     base_project_path: Path = Path(
         "/Users/dominikjurek/Library/CloudStorage/Dropbox/University/PhD Berkeley/Research"
     )
-    version: int = 2
+    version: int = 3
 
     analysis_window: tuple[int, int] = (1980, 2020)
     event_study_window: tuple[int, int] = (-5, 5)

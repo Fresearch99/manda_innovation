@@ -102,7 +102,6 @@ def build_matched_stacked_did_simple(
 ) -> pd.DataFrame:
     """Build the matched stacked panel used by the firm-level baseline analysis.
 
-    Matching logic is intentionally preserved from the original file:
     - estimate cohort-specific propensity scores at t-1 using size and industry;
     - within `sic3`, match treated and control firms using Mahalanobis distance on
       (`log_sale`, `log_mv`);
@@ -194,7 +193,7 @@ def build_matched_stacked_did_simple(
         return pd.DataFrame()
 
     stacked = pd.concat(stacked_list, ignore_index=True)
-    stacked["Post"] = (stacked["event_time"] > 0).astype(int)
+    stacked["Post"] = (stacked["event_time"] >= 0).astype(int)
     stacked["Post_Treated"] = stacked["Post"] * stacked["Treated"]
     return add_panel_index(stacked, "permco", "data_year")
 

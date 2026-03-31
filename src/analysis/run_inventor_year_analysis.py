@@ -20,9 +20,7 @@ from analysis.sections.utils import add_all_z_specs
 
 # The active workflow in the original source only runs inventor-year baseline
 # DiD/event-study, several heterogeneity layers, and optional Sun-Abraham on a
-# downsampled panel. Inventor-year CSDID remains available as a utility, but its
-# call is intentionally not executed here because the original loop had it
-# archived in a commented block.
+# downsampled panel.
 
 
 def main() -> None:
@@ -106,8 +104,8 @@ def main() -> None:
                 #
                 # Bootstrapping is kept small here to limit runtime in a public
                 # repo example. Increase B later if needed.
-                '''
-                for cs_outcome in ["is_move_year", "total_patents", "cites"]:
+                #'''
+                for cs_outcome in ["is_move_year", "exploration_inv", "total_patents", "cites"]:
                     if cs_outcome not in inv_es.columns:
                         continue
                     try:
@@ -125,13 +123,13 @@ def main() -> None:
                             min_cohort_size=200,
                             E_PRE=abs(config.event_study_ref_k),
                             E_MAX=3,
-                            B=99,
+                            B=config.inventor_year_csdid_bootstrap_draws,
                             seed=42,
                             verbose=True,
                         )
                     except Exception as exc:
                         print(f"[{role_tag} | {cs_outcome}] inventor-year CSDID skipped/failed: {exc}", flush=True)
-                '''
+                #'''
                 # To disable again, simply comment out the try/except block above.
                     
                 for z_col in ["Z_upper_half_cum_patents_within_firm"]:
@@ -139,7 +137,7 @@ def main() -> None:
                         continue
                     sig_z_rank = run_did_and_event_study_for_all_outcomes(
                         df=inv_es,
-                        role=f"{role_tag}_ddd_{z_col}",
+                        role=role_tag,
                         outcomes=[y for y in inv_year_outcomes if y in inv_es.columns],
                         controls=[c for c in all_ctrls if c in inv_es.columns],
                         OUT_DIR=invy_out_dir,
@@ -178,7 +176,7 @@ def main() -> None:
                         continue
                     sig_z = run_did_and_event_study_for_all_outcomes(
                         df=inv_es,
-                        role=f"{role_tag}_ddd_{z_col}",
+                        role=role_tag,
                         outcomes=[y for y in inv_year_outcomes if y in inv_es.columns],
                         controls=[c for c in all_ctrls if c in inv_es.columns],
                         OUT_DIR=invy_out_dir,
