@@ -92,8 +92,7 @@ print("Setup complete.")
 # SECTION 2 & 3: HELPERS & FOUNDATIONAL ECONOMIC DATA
 #################################################################
 print("--- Section 2 & 3: Loading Helpers & Foundational Economic Data ---")
-# Helper functions and loading of pre-built Compustat/M&A panels are assumed
-# to be here for brevity. This is a critical step for a full run.
+# Helper functions and loading of pre-built Compustat/M&A panels. This is a critical step for a full run.
 def download_and_load_patentsview_data(file_name, **kwargs):
     """Downloads a PatentsView TSV file if not present locally, then loads it."""
     base_url = 'https://s3.amazonaws.com/data.patentsview.org/download'
