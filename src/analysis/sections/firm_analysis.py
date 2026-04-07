@@ -387,23 +387,61 @@ def run_did_and_event_study_for_all_outcomes(
                 if not es_dummies_fit:
                     continue
 
-                coefs = res_es.params.loc[es_dummies_fit]
-                ses = res_es.std_errors.loc[es_dummies_fit]
-                ks = [int(n.split("_")[1]) for n in es_dummies_fit]
-                order = np.argsort(ks)
-                ks_sorted = np.array(ks)[order]
-                coefs_sorted = coefs.to_numpy()[order]
-                ses_sorted = ses.to_numpy()[order]
+                ks = sorted(int(d.split("_")[1]) for d in es_dummies_fit)
 
                 plt.figure(figsize=(9, 6))
                 plt.axhline(0, linestyle="--")
-                plt.errorbar(ks_sorted, coefs_sorted, yerr=1.96 * ses_sorted, fmt="o")
+
+                # Reference-group path
+                ref_coefs = np.array([res_es.params.get(f"rt_{k}", np.nan) for k in ks], dtype=float)
+                ref_ses = np.array([res_es.std_errors.get(f"rt_{k}", np.nan) for k in ks], dtype=float)
+                plt.errorbar(ks, ref_coefs, yerr=1.96 * ref_ses, fmt="o-", label="Reference group")
+
+                # Heterogeneity paths for non-reference groups
+                for zt in z_terms:
+                    path_coefs = []
+                    path_ses = []
+
+                    for k in ks:
+                        base_term = f"rt_{k}"
+                        int_term = f"{base_term}__{zt}"
+
+                        if int_term not in res_es.params.index:
+                            path_coefs.append(np.nan)
+                            path_ses.append(np.nan)
+                            continue
+
+                        b1 = res_es.params.get(base_term, 0.0)
+                        b2 = res_es.params.get(int_term, 0.0)
+
+                        v1 = res_es.cov.loc[base_term, base_term] if base_term in res_es.cov.index else 0.0
+                        v2 = res_es.cov.loc[int_term, int_term]
+                        c12 = (
+                            res_es.cov.loc[base_term, int_term]
+                            if (base_term in res_es.cov.index and int_term in res_es.cov.columns)
+                            else 0.0
+                        )
+
+                        path_coefs.append(b1 + b2)
+                        path_ses.append(np.sqrt(max(v1 + v2 + 2 * c12, 0.0)))
+
+                    plt.errorbar(
+                        ks,
+                        np.array(path_coefs, dtype=float),
+                        yerr=1.96 * np.array(path_ses, dtype=float),
+                        fmt="o-",
+                        label=str(zt),
+                    )
+
                 plt.title(f"Event Study: {y} ({role_tag})")
                 plt.xlabel(f"Years since event (ref = {omit} omitted)")
                 plt.ylabel("Coefficient")
                 plt.grid(True, alpha=0.3)
+                if z_terms:
+                    plt.legend()
                 plt.savefig(PLOT_DIR / f"es_{role_tag}_{y}.png", dpi=200, bbox_inches="tight")
                 plt.close()
+
 
     sig_df = pd.DataFrame(sig_rows)
     if sig_df.empty:
