@@ -60,7 +60,7 @@ def fe_panel_ols(
     else:
         fit_kwargs = dict(cov_type="clustered", cluster_entity=True, cluster_time=True)
 
-    return mod.fit(**fit_kwargs)
+    return mod.fit(low_memory=True, **fit_kwargs)
 
 
 def extract_r2(res) -> dict[str, float]:
