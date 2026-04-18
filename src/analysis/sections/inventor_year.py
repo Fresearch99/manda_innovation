@@ -122,6 +122,17 @@ def run_csdid_inventor_year(
 ):
     """Run CSDID on the inventor-year panel."""
     d0 = df_full.copy()
+
+    # Make sure id/time variables are available as ordinary columns.
+    if isinstance(d0.index, pd.MultiIndex):
+        idx_names = list(d0.index.names)
+        need_reset = any(c in idx_names for c in [id_col, t_col])
+        if need_reset:
+            d0 = d0.reset_index()
+    else:
+        if d0.index.name in [id_col, t_col]:
+            d0 = d0.reset_index()
+            
     role_l = str(role).lower()
     g_map = {"all": "cs_g_year_all", "target": "cs_g_year_target", "acquiror": "cs_g_year_acquiror"}
     g_src = g_map.get(role_l)

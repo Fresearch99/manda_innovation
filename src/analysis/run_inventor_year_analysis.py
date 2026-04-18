@@ -128,7 +128,10 @@ def main() -> None:
                             verbose=True,
                         )
                     except Exception as exc:
-                        print(f"[{role_tag} | {cs_outcome}] inventor-year CSDID skipped/failed: {exc}", flush=True)
+                        print(
+                            f"[{role_tag} | {cs_outcome}] inventor-year CSDID skipped/failed: {type(exc).__name__}: {exc}",
+                            flush=True
+                        )
                 #'''
                 # To disable again, simply comment out the try/except block above.
                     
