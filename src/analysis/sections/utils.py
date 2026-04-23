@@ -33,13 +33,17 @@ def fe_panel_ols(
     y = data[y_var]
     X = data.loc[:, x_vars].copy()
 
-    bool_cols = [c for c in X.columns if X[c].dtype == bool]
+    bool_cols = [c for c in X.columns if pd.api.types.is_bool_dtype(X[c])]
     if bool_cols:
-        X.loc[:, bool_cols] = X.loc[:, bool_cols].astype("float64")
+        X = X.astype({c: "float64" for c in bool_cols})
 
-    obj_cols = [c for c in X.columns if not np.issubdtype(X[c].dtype, np.number)]
+    obj_cols = [c for c in X.columns if not pd.api.types.is_numeric_dtype(X[c])]
     if obj_cols:
-        X.loc[:, obj_cols] = X.loc[:, obj_cols].apply(pd.to_numeric, errors="coerce").astype("float64")
+        X.loc[:, obj_cols] = (
+            X.loc[:, obj_cols]
+            .apply(pd.to_numeric, errors="coerce")
+            .astype("float64")
+        )
 
     mod = PanelOLS(
         y,
