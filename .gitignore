@@ -38,6 +38,12 @@ data/processed/*
 outputs/*
 !outputs/README.md
 
+# Archive folders
+archive/
+**/archive/
+archives/
+**/archives/
+
 # Optional: large file types
 *.parquet
 *.feather
