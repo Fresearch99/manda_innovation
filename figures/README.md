@@ -1,0 +1,1 @@
+This folder contains only the curated figures required to render the public overview notebook.  Additional generated diagnostics, placebo plots, intermediate regression outputs, and constructed datasets are excluded from the public repository but can be regenerated from the analysis scripts in the appropriate local data environment.
