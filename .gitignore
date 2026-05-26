@@ -6,13 +6,13 @@ __pycache__/
 .venv/
 venv/
 env/
-.ipynb_checkpoints/
 
 # Jupyter
 .ipynb_checkpoints/
 
 # macOS
 .DS_Store
+**/.DS_Store
 
 # R
 .Rhistory
@@ -31,6 +31,7 @@ env/
 # Large data / private data
 data/raw/*
 data/processed/*
+!data/README.md
 !data/raw/README.md
 !data/processed/README.md
 
@@ -38,11 +39,18 @@ data/processed/*
 outputs/*
 !outputs/README.md
 
+# Keep curated public figures used by the overview notebook
+!figures/
+!figures/**/*.png
+!figures/README.md
+
 # Archive folders
 archive/
 **/archive/
 archives/
 **/archives/
+figures/_archive/
+notebooks/archive/
 
 # Optional: large file types
 *.parquet
