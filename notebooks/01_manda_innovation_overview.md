@@ -156,7 +156,7 @@ The construction builds several patent-quality measures, which are all well esta
     First, unconditional forward citations are computed from citation data.  Then the code constructs class-year normalized bins based on CPC subclass and filing year:
 
     ```python
-    stats = df.groupby(['filing_year', 'cpc_subclass'])['forward_citations']           .quantile([0.90, 0.99]).unstack()
+    stats = df.groupby(['filing_year', 'cpc_subclass'])['forward_citations'].quantile([0.90, 0.99]).unstack()
     ```
 
     Raw citations are noisy across technology classes and cohorts.  Ranking patents within technology-year cells makes the quality proxy more comparable.
@@ -428,7 +428,19 @@ The analysis sections below include the most useful figure slots.  If a linked f
 The core specification for the baseline model is a two-way fixed-effects DiD model estimated separately for acquiror and target events:
 
 $$
-Y_{it} = \beta \cdot \text{PostTreat}_{it} + X_{it-1}'\delta + \alpha_i + \lambda_t + \varepsilon_{it}.
+\begin{aligned}
+Y_{it}
+&=
+\beta \cdot \text{PostTreat}_{it}
++
+X_{it-1}'\delta
++
+\alpha_i
++
+\lambda_t
++
+\varepsilon_{it}.
+\end{aligned}
 $$
 
 Here $Y_{it}$ is an inventor-year or firm-year outcome, $\alpha_i$ absorbs time-invariant unit differences, $\lambda_t$ absorbs common year shocks, and $X_{it-1}$ contains lagged controls where available.  The coefficient $\beta$ is the average post-M&A difference between treated units and matched or comparison controls, conditional on unit and year fixed effects.
@@ -436,7 +448,23 @@ Here $Y_{it}$ is an inventor-year or firm-year outcome, $\alpha_i$ absorbs time-
 The corresponding event-study specification replaces the single post-treatment indicator with relative-year indicators to the deal-year $G_i$:
 
 $$
-Y_{it} = \sum_{k \neq -1} \beta_k \cdot 1\{t-G_i=k\}\times \text{Treated}_i + X_{it-1}'\delta + \alpha_i + \lambda_t + \varepsilon_{it}.
+\begin{aligned}
+Y_{it}
+&=
+\sum_{k \neq -1}
+\beta_k
+\cdot
+\mathbf{1}_{\{t-G_i=k\}}
+\times \text{Treated}_i
++
+X_{it-1}'\delta
++
+\alpha_i
++
+\lambda_t
++
+\varepsilon_{it}.
+\end{aligned}
 $$
 
 The omitted period is $k=-1$, so each $\beta_k$ is interpreted relative to the year immediately before the deal.  The implementation is deliberately compact: the same fixed-effects wrapper is reused across firm and inventor designs.
@@ -537,7 +565,15 @@ The baseline DiD is useful but incomplete because M&A events occur in different 
 The CSDID estimator focuses on group-time treatment effects:
 
 $$
-ATT(g,t) = E[Y_t(1)-Y_t(0) \mid G=g],
+\begin{aligned}
+\operatorname{ATT}(g,t)
+&=
+\mathbb{E}\!\left[
+Y_t(1)-Y_t(0)
+\,\middle|\,
+G=g
+\right].
+\end{aligned}
 $$
 
 where $G=g$ is the cohort first treated in year $g$.  This measures the average treatment effect for cohort $g$ in calendar year $t$, relative to the counterfactual outcome that cohort would have had absent treatment, i.e., the M&A event.  The counterfactual outcome $Y_t(0)$ is estimated by comparing each treated cohort to units that are either not yet treated or never treated in calendar year $t$, using a doubly robust estimator.  The doubly robust CSDID specification estimates the untreated counterfactual by combining an outcome regression with inverse-probability weighting.  It directly adjusts for observed covariates while also reweighting comparison units to resemble the treated cohort.  The estimator is doubly robust in the sense that $ATT(g,t)$ remains consistently estimated if either the outcome model or the treatment-assignment model is correctly specified.
@@ -545,18 +581,23 @@ where $G=g$ is the cohort first treated in year $g$.  This measures the average 
 After estimating $ATT(g,t)$, the implementation maps calendar time into event time $e=t-g$ and aggregates effects using cohort-size weights:
 
 $$
-\widehat{ATT}(e)
-=
+\begin{aligned}
+\widehat{\operatorname{ATT}}(e)
+&=
 \sum_{g \in \mathcal{G}_e}
-w_{g,e}\widehat{ATT}(g,g+e),
+w_{g,e}\,
+\widehat{\operatorname{ATT}}(g,g+e).
+\end{aligned}
 $$
 
 where
 
 $$
+\begin{aligned}
 w_{g,e}
-=
+&=
 \frac{N_g}{\sum_{g' \in \mathcal{G}_e} N_{g'}}.
+\end{aligned}
 $$
 
 Here, $\mathcal{G}_e$ is the set of treated cohorts observed at event time $e$, and $N_g$ is the number of treated inventors in cohort $g$. Thus, cohorts with more treated inventors receive more weight when aggregating the group-time effects into the dynamic event-study path.
@@ -565,22 +606,26 @@ Here, $\mathcal{G}_e$ is the set of treated cohorts observed at event time $e$, 
 For the CSDID dynamic aggregation, the program computes approximate standard errors using a lightweight bootstrapping method over treated inventors.  In each bootstrap draw $b$, treated inventor IDs are sampled with replacement, producing bootstrap cohort counts $N_g^{(b)}$ and weights
 
 $$
+\begin{aligned}
 w_{g,e}^{(b)}
-=
+&=
 \frac{N_g^{(b)}}{\sum_{g' \in \mathcal{G}_e} N_{g'}^{(b)}}.
+\end{aligned}
 $$
 
 The bootstrap event-time estimate is then
 
 $$
-\widehat{ATT}^{(b)}(e)
-=
+\begin{aligned}
+\widehat{\operatorname{ATT}}^{(b)}(e)
+&=
 \sum_{g \in \mathcal{G}_e}
-w_{g,e}^{(b)}
-\widehat{ATT}(g,g+e),
+w_{g,e}^{(b)}\,
+\widehat{\operatorname{ATT}}(g,g+e).
+\end{aligned}
 $$
 
-and the reported standard error is the standard deviation of $\widehat{ATT}^{(b)}(e)$ across bootstrap draws. This procedure is computationally much cheaper than repeatedly refitting the full CSDID estimator on large inventor-year panels, but it should be interpreted as uncertainty from the cohort-weighted aggregation step rather than as a full bootstrap of the underlying $ATT(g,t)$ estimates.  For this reason, the combined Sun-Abraham/CSDID comparison figure below reports the CSDID point estimates without confidence intervals.  Adding the bootstrap intervals could give a misleading impression of precision because the intervals would only reflect variation in cohort composition from the aggregation bootstrap, not the full first-stage uncertainty from estimating each group-time treatment effect.
+and the reported standard error is the standard deviation of $\widehat{\operatorname{ATT}}^{(b)}(e)$ across bootstrap draws. This procedure is computationally much cheaper than repeatedly refitting the full CSDID estimator on large inventor-year panels, but it should be interpreted as uncertainty from the cohort-weighted aggregation step rather than as a full bootstrap of the underlying $ATT(g,t)$ estimates.  For this reason, the combined Sun-Abraham/CSDID comparison figure below reports the CSDID point estimates without confidence intervals.  Adding the bootstrap intervals could give a misleading impression of precision because the intervals would only reflect variation in cohort composition from the aggregation bootstrap, not the full first-stage uncertainty from estimating each group-time treatment effect.
 
 
 #### Sun-Abraham event study
@@ -588,24 +633,34 @@ and the reported standard error is the standard deviation of $\widehat{ATT}^{(b)
 The Sun-Abraham estimator builds cohort-by-event-time indicators and then aggregates them with cohort weights:
 
 $$
+\begin{aligned}
 Y_{it}
-=
-\sum_{g}\sum_{k \neq -1}	
-\beta_{gk} \cdot 1\{G_i=g\}1\{t-g=k\}
-+ X_{it-1}'\delta + \alpha_i + \lambda_t + \epsilon_{it}.
+&=
+\sum_{g}\sum_{k \neq -1}
+\beta_{gk}
+\cdot
+\mathbf{1}_{\{G_i=g\}}
+\mathbf{1}_{\{t-g=k\}}
++ X_{it-1}'\delta
++ \alpha_i
++ \lambda_t
++ \epsilon_{it}.
+\end{aligned}
 $$
 
 Here, $G_i$ denotes unit $i$'s treatment cohort, i.e., the M&A announcement year, and $k=t-g$ is event time relative to treatment.  The cohort-by-event-time coefficients $\beta_{gk}$ are then aggregated into treatment effects for each event time $k$.  The interaction-weighted estimate is
 
 $$
-\hat\theta_k
-=
+\begin{aligned}
+\hat{\theta}_k
+&=
 \sum_{g \in \mathcal{G}_k}
-w_{gk}\hat\beta_{gk},
-\qquad
+w_{gk}\,\hat{\beta}_{gk},
+\\[4pt]
 w_{gk}
-=
-\frac{N_g}{\sum_{g' \in \mathcal{G}_k}N_{g'}},
+&=
+\frac{N_g}{\sum_{g' \in \mathcal{G}_k} N_{g'}}.
+\end{aligned}
 $$
 
 where $\mathcal{G}_k$ is the set of treatment cohorts observed at event time $k$, and $N_g$ is the number of unique treated units in cohort $g$.  Thus, each event-time coefficient is a cohort-size-weighted average of the cohort-specific treatment effects available at that relative year.  This accounts for treatment-effect heterogeneity across cohorts and is especially useful as a robustness check for whether the baseline TWFE event-study pattern is distorted by the staggered treatment timing, especially through comparisons that implicitly use already-treated units as controls.
@@ -627,9 +682,28 @@ The CSDID results are more complicated.  Acquiror exploration is positive at eve
 
 The project also estimates triple-difference specifications asking whether M&A effects vary across inventor or firm types:
 
+
 $$
-Y_{it} = \beta_1\text{PostTreat}_{it} + \beta_2(\text{Post}_{it}\times Z_i)
-       + \beta_3(\text{PostTreat}_{it}\times Z_i) + X_{it-1}'\delta + \alpha_i + \lambda_t + \varepsilon_{it}.
+\begin{aligned}
+Y_{it}
+&=
+\beta_1 \text{PostTreat}_{it}
++
+\beta_2
+\left(\text{Post}_{it}\times Z_i\right)
+\\
+&\quad+
+\beta_3
+\left(\text{PostTreat}_{it}\times Z_i\right)
++
+X_{it-1}'\delta
++
+\alpha_i
++
+\lambda_t
++
+\varepsilon_{it}.
+\end{aligned}
 $$
 
 Here $Z_i$ can be a measure of firm size, relative deal size, or an inventor's within-firm productivity.  The coefficient $\beta_3$ shows whether the treatment effect differs for units with characteristic $Z_i$.  The most interpretable inventor heterogeneity split is the within-firm inventor-rank measure, i.e., whether the inventor was ranked in the upper half of inventors working for the same firm at `t=-1`, based on cumulative innovation output.  For this binary heterogeneity variable, $\beta_1$ is the estimated post-treatment effect for the lower-rank group, while $\beta_1+\beta_3$ is the corresponding effect for the upper-rank group.
@@ -702,29 +776,57 @@ The [Borusyak, Jaravel, and Spiess (BJS)](https://academic.oup.com/restud/articl
 Specifically, the untreated outcome model is estimated only on observations with $D_{it}=0$, i.e., control firms that were never treated and pre-period observations for treated firms:
 
 $$
-Y_{it}=\alpha_i+\lambda_t+X_{it}'\gamma+u_{it}, \qquad D_{it}=0,
+\begin{aligned}
+Y_{it}
+&=
+\alpha_i
++
+\lambda_t
++
+X_{it}'\gamma
++
+u_{it},
+\qquad
+D_{it}=0.
+\end{aligned}
 $$
 
 where $\alpha_i$ are firm fixed effects, $\lambda_t$ are year fixed effects, and $X_{it}$ are the same controls used in the firm-level analysis.  The fitted untreated potential outcome is
 
 $$
-\widehat{Y}_{it}(0)=\widehat{\alpha}_i+\widehat{\lambda}_t+X_{it}'\widehat{\gamma}.
+\begin{aligned}
+\widehat{Y}_{it}(0)
+&=
+\widehat{\alpha}_i
++
+\widehat{\lambda}_t
++
+X_{it}'\widehat{\gamma}.
+\end{aligned}
 $$
 
 For treated post-event observations, the imputed treatment effect is
 
 $$
-\widehat{\tau}_{it}=Y_{it}-\widehat{Y}_{it}(0).
+\begin{aligned}
+\widehat{\tau}_{it}
+&=
+Y_{it}
+-
+\widehat{Y}_{it}(0).
+\end{aligned}
 $$
 
 Dynamic effects are then averaged by event time:
 
 $$
-\widehat{ATT}_k
-=
+\begin{aligned}
+\widehat{\operatorname{ATT}}_k
+&=
 \frac{1}{N_k}
-\sum_{i,t:\,t-G_i=k,\,D_{it}=1}
+\sum_{\substack{i,t:\, t-G_i=k \\ D_{it}=1}}
 \widehat{\tau}_{it}.
+\end{aligned}
 $$
 
 Standard errors and confidence intervals are estimated using a bootstrap because the closed-form solution for the variance of the estimator is quite complex.  For the firm-level BJS results, the default inference routine uses a cluster bootstrap.  In each bootstrap draw, the code samples firm identifiers with replacement, keeps all observations for each sampled firm, re-estimates the untreated-outcome imputation model on the resampled data, recomputes the residualized treatment effects, and then re-averages those effects by event time.  The implementation also contains an alternative wild-bootstrap-style option that perturbs centered firm-level contributions without refitting the first-stage imputation model; this is mainly useful for larger panels where repeatedly refitting the model would be expensive.
@@ -745,34 +847,40 @@ The target BJS path is less aligned with the main story: post-event estimates ar
 The stacked synthetic-control estimator builds a firm-specific comparison path.  For each eligible treated firm, the method chooses donor weights $w_j$ for control firms so that the weighted donor path matches the treated firm’s pre-event outcome path:
 
 $$
+\begin{aligned}
 \widehat{Y}^{SC}_{it}
-=
+&=
 \widehat{\alpha}_i
 +
-\sum_{j\in\mathcal{D}_i}
+\sum_{j \in \mathcal{D}_i}
 \widehat{w}_{ij}Y_{jt},
 \qquad
-\widehat{w}_{ij}\geq 0.
+\widehat{w}_{ij} \geq 0.
+\end{aligned}
 $$
 
 The treatment gap is the difference between the treated firm and its synthetic control unit:
 
 $$
+\begin{aligned}
 \widehat{\tau}^{SC}_{it}
-=
+&=
 Y_{it}
 -
 \widehat{Y}^{SC}_{it}.
+\end{aligned}
 $$
 
 The stacked event-study path averages these firm-level gaps by relative year:
 
 $$
+\begin{aligned}
 \widehat{ATT}^{SC}_k
 =
 \frac{1}{N_k}
 \sum_{i,t:\,t-G_i=k}
 \left(Y_{it}-\widehat{Y}^{SC}_{it}\right).
+\end{aligned}
 $$
 
 The project implementation uses a ridge-regularized nonnegative least-squares synthetic-control procedure.  It places more weight on pre-treatment years closer to the M&A event, estimates treated-minus-synthetic gaps, aggregates those gaps by event time, and bootstraps over treated firms to estimate confidence intervals, i.e., treated firms are resampled with replacement and the mean event-time gap is recomputed in each bootstrap draw.  This makes SCM useful by itself because it gives a visually intuitive counterfactual: if the synthetic-control design is credible, pre-event gaps should be close to zero, and post-event deviations show how treated firms diverge from similar donor-based paths.
@@ -790,9 +898,15 @@ The causal forest is designed to study heterogeneity.  Average DiD effects can h
 Specifically, the project converts the panel into a cross-sectional treatment-effect setting.  Pre-treatment covariates are measured at `k=-1` and the outcome is the average post-event outcome over a short window.  The objective is to estimate the conditional average treatment effect,
 
 $$
+\begin{aligned}
 \tau(x)
-=
-E\!\left[Y_i(1)-Y_i(0)\mid X_i=x\right],
+&=
+\mathbb{E}\!\left[
+Y_i(1)-Y_i(0)
+\,\middle|\,
+X_i=x
+\right].
+\end{aligned}
 $$
 
 where $X_i$ are the pre-treatment firm covariates and $x$ is a particular covariate profile.
@@ -808,15 +922,19 @@ Note, however, that the causal-forest ATE is not directly comparable to the main
 The log-sales triple-DiD results are consistent with the causal-forest interpretation that firm size matters for treatment-effect heterogeneity.  A useful structured heterogeneity check is the target-firm Triple-DiD specification using three baseline log-sales bins in `t=-1`.  The specification can be written as
 
 $$
+\begin{aligned}
 Y_{it}
-=
+&=
 \beta \, \text{PostTreated}_{it}
 +
 \sum_{m=1}^{2}
-\delta_m \left(\text{Post}_{it}\times Z_{im}\right)
-+
+\delta_m
+\left(\text{Post}_{it}\times Z_{im}\right)
+\\
+&\quad+
 \sum_{m=1}^{2}
-\theta_m \left(\text{PostTreated}_{it}\times Z_{im}\right)
+\theta_m
+\left(\text{PostTreated}_{it}\times Z_{im}\right)
 +
 X_{it}'\gamma
 +
@@ -824,7 +942,8 @@ X_{it}'\gamma
 +
 \lambda_t
 +
-\varepsilon_{it},
+\varepsilon_{it}.
+\end{aligned}
 $$
 
 where $Z_{im}$ are indicators for the middle and largest baseline log-sales terciles, with the smallest tercile omitted.  The coefficient $\beta$ therefore gives the post-M&A effect for the smallest target firms, while $\theta_m$ measures how much the treatment effect differs for larger target firms relative to that smallest-size group.
@@ -838,15 +957,23 @@ For log total patents, the smallest target firms have a negative post-M&A effect
 The placebo routines test whether the empirical design produces significant effects when treatment timing should not have a causal interpretation.  Here, $G_i$ is the true M&A event year for treated firm $i$.  In the true design, the post-treatment indicator turns on in and after the actual event year:
 
 $$
-D_{it}=1\{t\geq G_i\}.
+D_{it}
+=
+\mathbf{1}_{\{t \geq G_i\}}.
 $$
 
 The lead placebo instead assigns the same firm a fake treatment year that occurs $L$ years before the true deal:
 
 $$
-G_i^{lead}=G_i-L,
-\qquad
-D_{it}^{lead}=1\{t\geq G_i^{lead}\}.
+\begin{aligned}
+G_i^{\mathrm{lead}}
+&=
+G_i-L,
+\\[4pt]
+D_{it}^{\mathrm{lead}}
+&=
+\mathbf{1}_{\{t \geq G_i^{\mathrm{lead}}\}}.
+\end{aligned}
 $$
 
 For example, if a firm is actually acquired in 2005 and $L=3$, the placebo treatment year is 2002.  The placebo regression then asks whether the model already finds an “effect” before the actual M&A event.  A strong placebo effect would suggest that the treated firms were already on a different trajectory before treatment.
@@ -854,9 +981,15 @@ For example, if a firm is actually acquired in 2005 and $L=3$, the placebo treat
 The permutation placebo keeps the set of treatment years but randomly reallocates them across treated firms:
 
 $$
-G_i^{perm}=\pi(G_i),
-\qquad
-D_{it}^{perm}=1\{t\geq G_i^{perm}\}.
+\begin{aligned}
+G_i^{\mathrm{perm}}
+&=
+\pi(G_i),
+\\[4pt]
+D_{it}^{\mathrm{perm}}
+&=
+\mathbf{1}_{\{t \geq G_i^{\mathrm{perm}}\}}.
+\end{aligned}
 $$
 
 Here, $\pi(G_i)$ denotes a random permutation of the actual cohort years.  This preserves the overall distribution of treatment timing but breaks the link between a specific firm and its actual M&A year.  The placebo regression then asks whether similar effects appear when treatment timing is artificially reassigned.  If the true estimates are stronger and more economically coherent than the permuted estimates, this would support the interpretation that the main results are connected to actual M&A timing rather than generic time patterns or features of the model specification.
