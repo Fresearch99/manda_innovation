@@ -588,28 +588,24 @@ and the reported standard error is the standard deviation of $\widehat{ATT}^{(b)
 The Sun-Abraham estimator builds cohort-by-event-time indicators and then aggregates them with cohort weights:
 
 $$
-\begin{aligned}
 Y_{it}
-&=
-\sum_{g}\sum_{k \neq -1}
+=
+\sum_{g}\sum_{k \neq -1}	
 \beta_{gk} \cdot 1\{G_i=g\}1\{t-g=k\}
 + X_{it-1}'\delta + \alpha_i + \lambda_t + \epsilon_{it}.
-\end{aligned}
 $$
 
 Here, $G_i$ denotes unit $i$'s treatment cohort, i.e., the M&A announcement year, and $k=t-g$ is event time relative to treatment.  The cohort-by-event-time coefficients $\beta_{gk}$ are then aggregated into treatment effects for each event time $k$.  The interaction-weighted estimate is
 
 $$
-\begin{aligned}
 \hat\theta_k
-&=
+=
 \sum_{g \in \mathcal{G}_k}
 w_{gk}\hat\beta_{gk},
 \qquad
 w_{gk}
 =
-\frac{N_g}{\sum_{g' \in \mathcal{G}_k}N_{g'}}.
-\end{aligned}
+\frac{N_g}{\sum_{g' \in \mathcal{G}_k}N_{g'}},
 $$
 
 where $\mathcal{G}_k$ is the set of treatment cohorts observed at event time $k$, and $N_g$ is the number of unique treated units in cohort $g$.  Thus, each event-time coefficient is a cohort-size-weighted average of the cohort-specific treatment effects available at that relative year.  This accounts for treatment-effect heterogeneity across cohorts and is especially useful as a robustness check for whether the baseline TWFE event-study pattern is distorted by the staggered treatment timing, especially through comparisons that implicitly use already-treated units as controls.
@@ -632,14 +628,8 @@ The CSDID results are more complicated.  Acquiror exploration is positive at eve
 The project also estimates triple-difference specifications asking whether M&A effects vary across inventor or firm types:
 
 $$
-\begin{aligned}
-Y_{it}
-&=
-\beta_1\text{PostTreat}_{it}
-+ \beta_2(\text{Post}_{it}\times Z_i)
-+ \beta_3(\text{PostTreat}_{it}\times Z_i)
-+ X_{it-1}'\delta + \alpha_i + \lambda_t + \varepsilon_{it}.
-\end{aligned}
+Y_{it} = \beta_1\text{PostTreat}_{it} + \beta_2(\text{Post}_{it}\times Z_i)
+       + \beta_3(\text{PostTreat}_{it}\times Z_i) + X_{it-1}'\delta + \alpha_i + \lambda_t + \varepsilon_{it}.
 $$
 
 Here $Z_i$ can be a measure of firm size, relative deal size, or an inventor's within-firm productivity.  The coefficient $\beta_3$ shows whether the treatment effect differs for units with characteristic $Z_i$.  The most interpretable inventor heterogeneity split is the within-firm inventor-rank measure, i.e., whether the inventor was ranked in the upper half of inventors working for the same firm at `t=-1`, based on cumulative innovation output.  For this binary heterogeneity variable, $\beta_1$ is the estimated post-treatment effect for the lower-rank group, while $\beta_1+\beta_3$ is the corresponding effect for the upper-rank group.
@@ -818,9 +808,8 @@ Note, however, that the causal-forest ATE is not directly comparable to the main
 The log-sales triple-DiD results are consistent with the causal-forest interpretation that firm size matters for treatment-effect heterogeneity.  A useful structured heterogeneity check is the target-firm Triple-DiD specification using three baseline log-sales bins in `t=-1`.  The specification can be written as
 
 $$
-\begin{aligned}
 Y_{it}
-&=
+=
 \beta \, \text{PostTreated}_{it}
 +
 \sum_{m=1}^{2}
@@ -835,8 +824,7 @@ X_{it}'\gamma
 +
 \lambda_t
 +
-\varepsilon_{it}.
-\end{aligned}
+\varepsilon_{it},
 $$
 
 where $Z_{im}$ are indicators for the middle and largest baseline log-sales terciles, with the smallest tercile omitted.  The coefficient $\beta$ therefore gives the post-M&A effect for the smallest target firms, while $\theta_m$ measures how much the treatment effect differs for larger target firms relative to that smallest-size group.
