@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -9,9 +10,10 @@ class AnalysisConfig:
     """Central configuration for the analysis workflow."""
 
     base_project_path: Path = Path(
-        "/Users/dominikjurek/Library/CloudStorage/Dropbox/University/PhD Berkeley/Research"
-    )
-    version: int = 3
+        os.environ.get("MANDA_PROJECT_PATH", ".")
+    ).expanduser().resolve()
+    
+    version: int = int(os.environ.get("MANDA_VERSION", "1"))
 
     analysis_window: tuple[int, int] = (1980, 2020)
     event_study_window: tuple[int, int] = (-5, 5)

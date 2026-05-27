@@ -47,18 +47,28 @@ import warnings
 # ---------------------------------------------------------------
 # 1.2. Project Configuration
 # ---------------------------------------------------------------
-BASE_PROJECT_PATH = r"/Users/dominikjurek/Library/CloudStorage/Dropbox/University/PhD Berkeley/Research"
-VERSION = 3
+BASE_PROJECT_PATH = os.environ.get("MANDA_PROJECT_PATH", ".")
+BASE_PROJECT_PATH = os.path.abspath(os.path.expanduser(BASE_PROJECT_PATH))
+
+VERSION = int(os.environ.get("MANDA_VERSION", "1"))
 
 OUTPUT_PATH = os.path.join(BASE_PROJECT_PATH, f"Patents/Data/Inventor_Mobility__v{VERSION}")
 RAW_DATA_PATH = os.path.join(BASE_PROJECT_PATH, "Patents/Data/Raw_Patentsview")
 INTERMEDIATE_PATH = os.path.join(OUTPUT_PATH, "intermediate_files")
 
-FINANCIAL_DATA_PATH = os.path.join(BASE_PROJECT_PATH, "WRDS Data")
-MANDA_DATA_PATH = os.path.join(BASE_PROJECT_PATH, "SDC Data 1993 - 2018/MandA")
-LINKTABLE_CSV = os.path.join(
-    BASE_PROJECT_PATH,
-    "Alice Project/Patent Portfolio and Economic Data/Patent Portfolio Source Data/linktable.csv"
+FINANCIAL_DATA_PATH = os.environ.get(
+    "MANDA_FINANCIAL_DATA_PATH",
+    os.path.join(BASE_PROJECT_PATH, "WRDS Data")
+)
+
+MANDA_DATA_PATH = os.environ.get(
+    "MANDA_DATA_PATH",
+    os.path.join(BASE_PROJECT_PATH, "SDC Data 1993 - 2018/MandA")
+)
+
+LINKTABLE_CSV = os.environ.get(
+    "MANDA_LINKTABLE_CSV",
+    os.path.join(BASE_PROJECT_PATH, "linktable.csv")
 )
 
 os.makedirs(OUTPUT_PATH, exist_ok=True)
