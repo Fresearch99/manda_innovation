@@ -56,11 +56,13 @@ The analysis includes several complementary estimations:
 
 ## Repository guide
 
-The public overview notebook provides a detailed walkthrough of the project:
+The public overview notebook provides a detailed walkthrough of the project.  For the most readable version of the documentation, start with the rendered project page:
 
+- [Rendered project page](https://fresearch99.github.io/manda_innovation/)
 - [`notebooks/01_manda_innovation_overview.ipynb`](notebooks/01_manda_innovation_overview.ipynb)
 - [`notebooks/01_manda_innovation_overview.html`](notebooks/01_manda_innovation_overview.html)
 - [`notebooks/01_manda_innovation_overview.pdf`](notebooks/01_manda_innovation_overview.pdf)
+
 
 Repository structure:
 
