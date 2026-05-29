@@ -15,7 +15,7 @@ To answer this question, the analysis separates inventors by whether they were a
 Baseline DiD, dynamic event studies, staggered-treatment estimators, placebo checks, and heterogeneity analyses provide complementary evidence and suggest that M&A changes the **organization of inventive labor**.
 
 - **Acquiror inventors** show the clearest evidence of reorientation:  exploration rises, mobility increases around the event window, and heterogeneity results suggest effects differ by inventor position within the firm.
-- **Target inventors** show a more disruptive pattern:  baseline estimates point to lower patenting and citations, although dynamic estimates are less clean because target-side innovation paths show movements already before acquisition.
+- **Target inventors** show a more disruptive pattern:  baseline estimates point to lower patenting and citations, although dynamic estimates are less clean because target-side innovation paths show persistent pre-period gaps to control units and movements already before acquisition.
 - **Firm-level results** provide useful aggregate context, especially for target-side declines in innovation output, but placebo and timing diagnostics suggest they should be read mostly as supporting evidence.
 
 ## Selected evidence
@@ -34,7 +34,7 @@ Acquiror inventors show the most consistent evidence of innovation reorientation
 
 ### Target inventors: productivity disruption
 
-Target inventors show more disruptive productivity patterns, especially in overall patenting.  The interpretation of the results is more cautious because the event-study path shows pre-period movement, consistent with targets being selected into treatment after earlier innovation changes or already being on a shifting innovation trajectory before acquisition.
+Target inventors show more disruptive productivity patterns, especially in overall patenting.   The event study is not a textbook clean design because treated target inventors already differ from matched controls before acquisition; however, the pre-period coefficients are relatively stable rather than clearly deteriorating.  This points more to a persistent pre-treatment level gap, or sensitivity to the omitted `k=-1` reference period, than to a sharply worsening pre-trend.
 
 ![Target inventor patenting event study](figures/inventor_year_event_study/es_inv_year_target_vs_control_nn1_x_firm_total_patents.png)
 
